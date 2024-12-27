@@ -1,0 +1,137 @@
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
+import java.util.ArrayList;
+import java.util.List;
+
+@SpringBootApplication
+public class WebsiteApplication {
+    public static void main(String[] args) {
+        SpringApplication.run(WebsiteApplication.class, args);
+    }
+}
+
+@Controller
+class WebController {
+
+    private final List<User> users = new ArrayList<>();
+
+    @GetMapping("/")
+    public String homePage(Model model) {
+        model.addAttribute("title", "Welcome to My Website");
+        return "home";
+    }
+
+    @GetMapping("/contact")
+    public String contactPage(Model model) {
+        model.addAttribute("title", "Contact Us");
+        return "contact";
+    }
+
+    @GetMapping("/users")
+    public String userPage(Model model) {
+        model.addAttribute("title", "User List");
+        model.addAttribute("users", users);
+        return "users";
+    }
+
+    @PostMapping("/addUser")
+    public String addUser(@RequestParam String name, @RequestParam String email, Model model) {
+        users.add(new User(name, email));
+        model.addAttribute("title", "User List");
+        model.addAttribute("users", users);
+        return "redirect:/users";
+    }
+}
+
+class User {
+    private String name;
+    private String email;
+
+    public User(String name, String email) {
+        this.name = name;
+        this.email = email;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+}
+
+//*HTML Templates (src/main/resources/templates) */
+
+// home.html
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Welcome</title>
+</head>
+<body>
+    <h1>${title}</h1>
+    <nav>
+        <a href="/">Home</a> |
+        <a href="/contact">Contact</a> |
+        <a href="/users">Users</a>
+    </nav>
+</body>
+</html>
+
+
+// contact.html
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Contact Us</title>
+</head>
+<body>
+    <h1>${title}</h1>
+    <p>Contact us at: support@example.com</p>
+    <nav>
+        <a href="/">Home</a> |
+        <a href="/contact">Contact</a> |
+        <a href="/users">Users</a>
+    </nav>
+</body>
+</html>
+
+
+// users.html
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>User List</title>
+</head>
+<body>
+    <h1>${title}</h1>
+    <form action="/addUser" method="post">
+        <label for="name">Name:</label>
+        <input type="text" id="name" name="name" required><br>
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" required><br>
+        <button type="submit">Add User</button>
+    </form>
+    <ul>
+        <li th:each="user : ${users}">
+            <span th:text="${user.name}"></span> (<span th:text="${user.email}"></span>)
+        </li>
+    </ul>
+    <nav>
+        <a href="/">Home</a> |
+        <a href="/contact">Contact</a> |
+        <a href="/users">Users</a>
+    </nav>
+</body>
+</html>
+
